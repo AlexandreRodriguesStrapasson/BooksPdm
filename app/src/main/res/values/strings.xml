@@ -8,4 +8,7 @@
     <string name="save">Save</string>
     <string name="firts_author">Firts Author</string>
     <string name="publisher">Publisher</string>
+    <string name="title_tile">Title</string>
+    <string name="edit_book">Edit Book</string>
+    <string name="remove_book">Remove Book</string>
 </resources>

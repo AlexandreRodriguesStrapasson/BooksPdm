@@ -1,13 +1,22 @@
 package com.example.bookspdm.ui
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.ArrayAdapter
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bookspdm.R
 import com.example.bookspdm.databinding.ActivityMainBinding
 import com.example.bookspdm.model.Book
+import com.example.bookspdm.model.Constant
+import com.example.bookspdm.model.Constant.BOOK
 
 class MainActivity : AppCompatActivity() {
     private val amb: ActivityMainBinding by lazy{
@@ -18,30 +27,38 @@ class MainActivity : AppCompatActivity() {
     private val bookList: MutableList<Book> = mutableListOf()
 
     //adapter
-    private val bookAdapter: ArrayAdapter<String> by lazy{
-        val bookTitleList: MutableList<String> = mutableListOf()
-        /*bookList.forEach{book -> bookTitleList.add(book.title)}
-        //bookList.forEach{book -> bookTitleList.add(book.toString())}
-        ArrayAdapter(
-            this,
-            android.R.layout.simple_list_item_1,
-            bookTitleList
-        )*/
-
-        ArrayAdapter(
-            this,
-            android.R.layout.simple_list_item_1,
-            bookList.run {
-                bookList.forEach{book -> bookTitleList.add(book.title)}
-                this.forEach { bookTitleList.add(it.title) }
-                bookTitleList
-            }
-            )
+    private val bookAdapter: BookAdapter by lazy{
+        BookAdapter(this, bookList)
     }
+
+    private lateinit var barl: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(amb.root)
+
+        barl = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){result ->
+            if(result.resultCode == RESULT_OK){
+                val book = if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                    result.data?.getParcelableExtra<Book>(Constant.BOOK)
+                }
+                else{
+                    result.data?.getParcelableExtra<Book>(Constant.BOOK, Book::class.java)
+                }
+                book?.let{ receivedBook ->
+                    val position = bookList.indexOfFirst { it.ispn == receivedBook.ispn }
+                    if(position == -1){
+                        bookList.add(receivedBook)
+                    }else{
+                        bookList[position] = receivedBook
+                    }
+
+                    bookAdapter.notifyDataSetChanged()
+                }
+
+            }
+        }
+
         amb.toolbarInc.toolbar.let {
             it.subtitle = "Book List"
             setSupportActionBar(it)
@@ -50,6 +67,8 @@ class MainActivity : AppCompatActivity() {
         fillBookList()
 
         amb.booksLv.adapter = bookAdapter
+
+        registerForContextMenu(amb.booksLv)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -60,13 +79,44 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when(item.itemId){
         R.id.addBook -> {
             //abrir tela para adicionar nova linha
-
+            barl.launch(Intent(this, BookActivity::class.java))
             true
         }
         else -> {
             false
         }
     }
+
+    override fun onCreateContextMenu(
+        menu: ContextMenu?,
+        v: View?,
+        menuInfo: ContextMenu.ContextMenuInfo?
+    ) = menuInflater.inflate(R.menu.context_menu_main, menu)
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        val position = (item.menuInfo as AdapterContextMenuInfo).position
+
+        return when(item.itemId){
+            R.id.editBookMi -> {
+                //Chamar tela de edição de livro
+                Intent(this, BookActivity::class.java).apply {
+                    putExtra(BOOK, bookList[position])
+                    barl.launch(this)
+                }
+                true
+            }
+            R.id.removeBookMi -> {
+                //Remover livro da lista
+                bookList.removeAt(position)
+                bookAdapter.notifyDataSetChanged()
+                true
+            }
+            else -> {
+                false
+            }
+        }
+    }
+
 
     private fun fillBookList(){
         for(index in 1..50){
