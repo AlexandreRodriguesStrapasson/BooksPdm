@@ -17,6 +17,7 @@ import com.example.bookspdm.databinding.ActivityMainBinding
 import com.example.bookspdm.model.Book
 import com.example.bookspdm.model.Constant
 import com.example.bookspdm.model.Constant.BOOK
+import com.example.bookspdm.model.Constant.VIEW_MODE
 
 class MainActivity : AppCompatActivity() {
     private val amb: ActivityMainBinding by lazy{
@@ -67,6 +68,14 @@ class MainActivity : AppCompatActivity() {
         fillBookList()
 
         amb.booksLv.adapter = bookAdapter
+
+        amb.booksLv.setOnItemClickListener { _, _, postion, _ ->
+            Intent(this, BookActivity::class.java).apply {
+                putExtra(BOOK, bookList[postion])
+                putExtra(VIEW_MODE, false)
+                startActivity(this)
+            }
+        }
 
         registerForContextMenu(amb.booksLv)
     }
