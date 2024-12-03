@@ -37,7 +37,7 @@ class BookActivity : AppCompatActivity() {
                     publisherEt.isEnabled = viewMode
                     editionEt.isEnabled = viewMode
                     pagesEt.isEnabled = viewMode
-                    saverBt.visibility = if(viewMode) GONE else VISIBLE
+                    saverBt.visibility = if(viewMode) VISIBLE else GONE
                 }
             }
         }
