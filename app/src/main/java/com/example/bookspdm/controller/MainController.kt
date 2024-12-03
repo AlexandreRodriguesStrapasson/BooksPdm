@@ -11,6 +11,6 @@ class MainController (mainActivity: MainActivity){
     fun insertBook(book: Book) = bookDao.creationBook(book)
     fun getBook(isbn: String) = bookDao.retriveBook(isbn)
     fun getBooks() = bookDao.retriveBooks()
-    fun updateBook(book: Book) = bookDao.updateBook(book)
+    fun modifyBook(book: Book) = bookDao.updateBook(book)
     fun removeBook(isbn: String) = bookDao.deletionBook(isbn)
 }

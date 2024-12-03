@@ -8,7 +8,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView.AdapterContextMenuInfo
-import android.widget.ArrayAdapter
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -56,8 +55,10 @@ class MainActivity : AppCompatActivity() {
                     val position = bookList.indexOfFirst { it.ispn == receivedBook.ispn }
                     if(position == -1){
                         bookList.add(receivedBook)
+                        mainContrller.insertBook(receivedBook)
                     }else{
                         bookList[position] = receivedBook
+                        mainContrller.modifyBook(receivedBook)
                     }
 
                     bookAdapter.notifyDataSetChanged()
@@ -124,6 +125,7 @@ class MainActivity : AppCompatActivity() {
                 //Remover livro da lista
                 bookList.removeAt(position)
                 bookAdapter.notifyDataSetChanged()
+                mainContrller.removeBook(bookList[position].ispn)
                 true
             }
             else -> {
@@ -134,17 +136,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun fillBookList(){
-        for(index in 1..50){
-            bookList.add(
-                Book(
-                    "Title $index",
-                    "ISBN: $index",
-                    "Autor: $index",
-                    "Publisher: $index",
-                    index,
-                    index
-                )
-            )
-        }
+        bookList.clear()
+        bookList.addAll(mainContrller.getBooks())
+        bookAdapter.notifyDataSetChanged()
     }
 }
