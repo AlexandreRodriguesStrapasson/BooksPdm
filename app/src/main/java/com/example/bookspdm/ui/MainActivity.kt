@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bookspdm.R
+import com.example.bookspdm.controller.MainController
 import com.example.bookspdm.databinding.ActivityMainBinding
 import com.example.bookspdm.model.Book
 import com.example.bookspdm.model.Constant
@@ -30,6 +31,11 @@ class MainActivity : AppCompatActivity() {
     //adapter
     private val bookAdapter: BookAdapter by lazy{
         BookAdapter(this, bookList)
+    }
+
+    //Controller
+    private val mainContrller: MainController by lazy {
+        MainController(this)
     }
 
     private lateinit var barl: ActivityResultLauncher<Intent>
